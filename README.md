@@ -24,13 +24,13 @@ You may choose any Python web framework you're comfortable with, such as Flask, 
     - Implement forms or other UI elements to allow users to add new records.
 2. Database Interaction:
     - Use SQLAlchemy (using the provided models) to interact with the database.
-4. Time Allocation:
+3. Time Allocation:
     - Please allocate 4-6 hours for the completion of this task.
 
 ## Submission Guidelines
 Once you have completed the task:
 1. Share the forked repository on GitHub.
-3. Be prepared to demonstrate the application and discuss your approach during the next interview.
+2. Be prepared to demonstrate the application and discuss your approach during the next interview.
 
 ## Deadline
 Ensure that you submit your forked repository by the deadline provided by VEIC's HR Business Partner.
