@@ -1,0 +1,10 @@
+.env 
+db/application.db 
+__pycache__/
+
+# PyCharm
+.idea
+
+# Seed example data script 
+src/app/seed.py 
+data/

@@ -1,0 +1,9 @@
+name: ems_interview
+channels:
+  - defaults
+dependencies:
+  - pandas=2.2.*
+  - pip=25.0
+  - python=3.13.*
+  - sqlalchemy=2.0.*
+
