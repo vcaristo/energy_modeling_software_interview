@@ -24,17 +24,14 @@ You may choose any Python web framework you're comfortable with, such as Flask, 
     - Implement forms or other UI elements to allow users to add new records.
 2. Database Interaction:
     - Use SQLAlchemy (using the provided models) to interact with the database.
-3. Deployment:
-    - Deploy the web application to a hosting service of your choice (e.g., Heroku, Vercel, DigitalOcean).
 4. Time Allocation:
-    - Please allocate 5-8 hours for the completion of this task.
+    - Please allocate 4-6 hours for the completion of this task.
 
 ## Submission Guidelines
 Once you have completed the task:
 1. Share the forked repository on GitHub.
-2. Provide the URL of the deployed web application.
 3. Be prepared to demonstrate the application and discuss your approach during the next interview.
 
 ## Deadline
-Ensure that you submit your forked repository and the URL of the deployed app by the deadline provided by VEIC's HR Business Partner.
+Ensure that you submit your forked repository by the deadline provided by VEIC's HR Business Partner.
 
