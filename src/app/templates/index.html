@@ -14,7 +14,10 @@
 </head>
 
 <body class="container mt-5">
-    <h2>Projects</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Projects</h2>
+        <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#addProjectCanvas">Add Project</button>
+      </div>      
     <table id="project-table" class="display">
         <thead><tr><th>ID</th><th>Title</th><th>Status</th></tr></thead>
         <tbody>
@@ -117,9 +120,6 @@ $(document).ready(function() {
 });
   </script>
 
-    <!--Add Project button-->
-    <button class="btn btn-primary mb-3" data-bs-toggle="offcanvas" data-bs-target="#addProjectCanvas">Add Project</button>
-
     <!---sidebar element-->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="addProjectCanvas" aria-labelledby="addProjectLabel">
         <div class="offcanvas-header">
@@ -132,11 +132,18 @@ $(document).ready(function() {
               <label for="project-title" class="form-label">Title</label>
               <input type="text" class="form-control" id="project-title" required>
             </div>
+
             <div class="mb-3">
               <label for="project-status" class="form-label">Status</label>
-              <input type="text" class="form-control" id="project-status" required>
+              <select class="form-select" id="project-status" required>
+                <option value="" disabled selected>Select status</option>
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Complete">Complete</option>
+              </select>
             </div>
             <button type="submit" class="btn btn-success">Add Project</button>
+
           </form>
         </div>
       </div>
