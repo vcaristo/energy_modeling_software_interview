@@ -1,5 +1,6 @@
 from flask import Flask, render_template, jsonify, request
 from models import Project, Measure, session
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -41,6 +42,30 @@ def add_project():
         session.rollback()
         print("Error while adding project:", e)
         return jsonify({'error': 'Failed to add project'}), 500
+
+@app.route('/add_measure', methods=['POST'])
+def add_measure():
+    data = request.get_json()
+    project_id = data.get('project_id')
+    measure_type = data.get('measure_type')
+    install_date_str = data.get('install_date')
+
+    try:
+        # Convert string to Python date object
+        install_date = datetime.strptime(install_date_str, '%Y-%m-%d').date()
+
+        new_measure = Measure(
+            project_id=project_id,
+            measure_type=measure_type,
+            install_date=install_date
+        )
+        session.add(new_measure)
+        session.commit()
+        return jsonify({'message': 'Measure added successfully'}), 201
+    except Exception as e:
+        session.rollback()
+        print("Error adding measure:", e)
+        return jsonify({'error': 'Failed to add measure'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
