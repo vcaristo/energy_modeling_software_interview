@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
@@ -24,3 +25,10 @@ class Measure(Base):
 
     def __repr__(self):
         return f"<Measure(id={self.id}, type={self.measure_type})>"
+
+
+# Set up SQLite DB session
+engine = create_engine('sqlite:///../db/application_example.db')  # hard-coded relative path
+
+Session = sessionmaker(bind=engine)  
+session = Session()
