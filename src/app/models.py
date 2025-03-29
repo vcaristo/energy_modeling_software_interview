@@ -28,7 +28,8 @@ class Measure(Base):
 
 
 # Set up SQLite DB session
-engine = create_engine('sqlite:///../db/application_example.db')  # hard-coded relative path
+engine = create_engine('sqlite:///../../db/application_example.db')  # hard-coded relative path
 
+# single db session for the web app -- may want to move for concurrency features
 Session = sessionmaker(bind=engine)  
 session = Session()
