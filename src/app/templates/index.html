@@ -36,6 +36,8 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         $(document).ready(function() {
         
@@ -85,6 +87,58 @@
     });
     </script>
 
-    <a href="/add" class="btn btn-primary mb-3">Add Project</a>
+<script>
+$(document).ready(function() {
+
+    $('#add-project-form').on('submit', function(e) {
+      e.preventDefault();
+  
+      const title = $('#project-title').val();
+      const status = $('#project-status').val();
+  
+      fetch('/add_project', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, status })
+      })
+      .then(res => {
+        if (res.ok) {
+          // Close panel, refresh page or re-fetch data
+          const canvas = bootstrap.Offcanvas.getInstance(document.getElementById('addProjectCanvas'));
+          canvas.hide();
+          location.reload(); // or use DataTables API to add row dynamically
+        } else {
+          alert('Failed to add project');
+        }
+      });
+    });
+});
+  </script>
+
+    <!--Add Project button-->
+    <button class="btn btn-primary mb-3" data-bs-toggle="offcanvas" data-bs-target="#addProjectCanvas">Add Project</button>
+
+    <!---sidebar element-->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="addProjectCanvas" aria-labelledby="addProjectLabel">
+        <div class="offcanvas-header">
+          <h5 id="addProjectLabel">Add New Project</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+          <form id="add-project-form">
+            <div class="mb-3">
+              <label for="project-title" class="form-label">Title</label>
+              <input type="text" class="form-control" id="project-title" required>
+            </div>
+            <div class="mb-3">
+              <label for="project-status" class="form-label">Status</label>
+              <input type="text" class="form-control" id="project-status" required>
+            </div>
+            <button type="submit" class="btn btn-success">Add Project</button>
+          </form>
+        </div>
+      </div>
 </body>
 </html>
