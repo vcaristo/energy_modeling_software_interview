@@ -71,5 +71,11 @@ def add_measure():
         print("Error adding measure:", e)
         return jsonify({'error': 'Failed to add measure'}), 500
 
+@app.route('/measure_types')
+def measure_types():
+    # Returns all measure types to auto-populate drop-down list
+    types = session.query(Measure.measure_type).distinct().all()
+    return jsonify([t[0] for t in types if t[0]])  # clean list
+
 if __name__ == '__main__':
     app.run(debug=True)

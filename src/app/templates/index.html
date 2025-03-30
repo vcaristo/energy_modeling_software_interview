@@ -190,7 +190,10 @@
     <!-- Project row click behavior -->
     <script>
         $(document).ready(function () {
-          const table = $('#project-table').DataTable();
+          const table = $('#project-table').DataTable({
+            pageLength: 5,
+            lengthMenu:[5, 10, 25, 50 , 100],
+          });
       
           // Filter button behavior
           $('.status-filter').on('click', function () {
@@ -242,6 +245,7 @@
                 $('#measures-table').removeClass('d-none');
                 $('#add-measure-btn').removeClass('d-none');
                 $('#measure-project-id').val(projectId);
+                $('#add-measure-project-title').text(projectTitle);
         
                 fetch(`/measures/${projectId}`)
                     .then(response => response.json())
@@ -297,11 +301,76 @@
     <!-- Add Measure Form submission --> 
     <script>
         $(document).ready(function() {
+            // Load measure types when sidebar opens
+            const measureCanvasEl = document.getElementById('addMeasureCanvas');
+            measureCanvasEl.addEventListener('show.bs.offcanvas', () => {
+                // reset to placeholder
+                $('#measure-type-select').val('');
+                $('#custom-measure-type-group').addClass('d-none'); // also hide custom field just in case
+
+                fetch('/measure_types')
+                    .then(res => res.json())
+                    .then(types => {
+                        const select = $('#measure-type-select');
+
+                        // Remove previous options 
+                        select.find('option').not('[value="__custom__"]').not(':disabled').remove();
+
+                        // Insert new options BEFORE the "Other" option
+                        const otherOption = select.find('option[value="__custom__"]');
+
+                        types.forEach(t => {
+                        $('<option>', {
+                            value: t,
+                            text: t
+                        }).insertBefore(otherOption);
+                        });
+                    });
+            });
+
+            // Hide the placeholder once user interacts with menu
+            $('#measure-type-select').one('focus', function () {
+                $('#measure-placeholder').remove();
+            });
+
+            // Show custom input when "Other" is selected
+            $('#measure-type-select').on('change', function () {
+                const isCustom = $(this).val() === '__custom__';
+                $('#custom-measure-type-group').toggleClass('d-none', !isCustom);
+                $('#custom-measure-type').prop('required', isCustom);
+            });
+
+            // Function to refresh measures after adding a new measure
+            function refreshMeasuresForProject(projectId) {
+                fetch(`/measures/${projectId}`)
+                    .then(response => response.json())
+                    .then(measures => {
+                    const tbody = $('#measures-body');
+                    tbody.empty();
+
+                    if (measures.length === 0) {
+                        tbody.append('<tr><td colspan="3">No measures found.</td></tr>');
+                    } else {
+                        for (let m of measures) {
+                            tbody.append(`<tr><td>${m.id}</td><td>${m.measure_type}</td><td>${m.install_date}</td></tr>`);
+                        }
+                    }
+
+                    $('#measures-placeholder').addClass('d-none');
+                    $('#measures-table').removeClass('d-none');
+                    $('#add-measure-btn').removeClass('d-none');
+                    });
+            }
+
+            // Handle Add Measure form submission
             $('#add-measure-form').on('submit', function(e) {
                 e.preventDefault();
         
                 const projectId = $('#measure-project-id').val();
-                const measureType = $('#measure-type').val();
+                let measureType = $('#measure-type-select').val();
+                if (measureType === '__custom__') {
+                    measureType = $('#custom-measure-type').val();
+                }
                 const installDate = $('#install-date').val();
         
                 fetch('/add_measure', {
@@ -319,7 +388,9 @@
                     if (res.ok) {
                         const canvas = bootstrap.Offcanvas.getInstance(document.getElementById('addMeasureCanvas'));
                         canvas.hide();
-                        location.reload(); // re-fetch measures
+                        //location.reload(); // re-fetch measures
+                        // Re-fetch and repopulate measures
+                        refreshMeasuresForProject(projectId);
                     } else {
                         alert('Failed to add measure');
                     }
@@ -337,52 +408,66 @@
         </div>
         
         <div class="offcanvas-body">
-          <form id="add-project-form">
 
-            <div class="mb-3">
-              <label for="project-title" class="form-label">Title</label>
-              <input type="text" class="form-control" id="project-title" required>
-            </div>
+            <form id="add-project-form">
 
-            <div class="mb-3">
-              <label for="project-status" class="form-label">Status</label>
-              <select class="form-select" id="project-status" required>
-                <option value="" disabled selected>Select status</option>
-                <option value="Not Started">Not Started</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Complete">Complete</option>
-              </select>
-            </div>
+                <div class="mb-3">
+                <label for="project-title" class="form-label">Title</label>
+                <input type="text" class="form-control" id="project-title" required>
+                </div>
 
-            <button type="submit" class="btn btn-success">Add Project</button>
-          </form>
+                <div class="mb-3">
+                <label for="project-status" class="form-label">Status</label>
+                <select class="form-select" id="project-status" required>
+                    <option value="" disabled selected>Select status</option>
+                    <option value="Not Started">Not Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Complete">Complete</option>
+                </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">Add Project</button>
+            </form>
         </div>
     </div>
 
     <!-- Add Measure sidebar -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="addMeasureCanvas" aria-labelledby="addMeasureLabel">
-    <div class="offcanvas-header">
-        <h5 id="addMeasureLabel">Add New Measure</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-    </div>
-    <div class="offcanvas-body">
-        <form id="add-measure-form">
-        <!-- Hidden field for project ID -->
-        <input type="hidden" id="measure-project-id">
-    
-        <div class="mb-3">
-            <label for="measure-type" class="form-label">Measure Type</label>
-            <input type="text" class="form-control" id="measure-type" required>
+        <div class="offcanvas-header">
+            <h5 id="addMeasureLabel">Add New Measure</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
         </div>
-    
-        <div class="mb-3">
-            <label for="install-date" class="form-label">Install Date</label>
-            <input type="date" class="form-control" id="install-date" required>
+        <div class="offcanvas-body">
+            <div class="mb-3">
+                <p class="mb-1 text-muted small">Adding measure to:</p>
+                <h5 id="add-measure-project-title" class="fw-semibold"></h5>
+            </div>
+            <form id="add-measure-form">
+            <!-- Hidden field for project ID -->
+            <input type="hidden" id="measure-project-id">
+        
+            <div class="mb-3">
+                <label for="measure-type-select" class="form-label">Measure Type</label>
+                <select class="form-select" id="measure-type-select" required>
+                  <option value="" disabled selected hidden> Select Measure Type</option>
+                  <!-- options dynamically inserted here -->
+                  <option value="__custom__">Other (type your own)</option>
+                </select>
+              </div>
+              
+              <!-- Hidden custom input field -->
+              <div class="mb-3 d-none" id="custom-measure-type-group">
+                <input type="text" class="form-control" id="custom-measure-type" placeholder="Enter custom measure type">
+            </div>
+        
+            <div class="mb-3">
+                <label for="install-date" class="form-label">Install Date</label>
+                <input type="date" class="form-control" id="install-date" required>
+            </div>
+        
+            <button type="submit" class="btn btn-success">Add Measure</button>
+            </form>
         </div>
-    
-        <button type="submit" class="btn btn-success">Add Measure</button>
-        </form>
-    </div>
     </div>
       
 </body>
