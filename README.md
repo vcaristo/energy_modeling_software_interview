@@ -1,37 +1,107 @@
-# Energy Modeling Software Engineer Interview Exercise
+# VEIC Interview Demo App
 
-This repository includes an example SQLite database and SQLAlchemy models that represent energy efficiency projects and the corresponding measures installed. You are tasked with building a web interface to interact with the data.
+This is a Flask-based web application for viewing projects and associated measures. It uses SQLite and SQLAlchemy on the backend, with Bootstrap and DataTables on the frontend. The app is deployable behind Nginx using Gunicorn.
 
-## Project Overview
-The SQLite database file is located at: `db/application_example.db`
+---
 
+## Features
 
-The SQLAlchemy models, representing the tables within the database, can be found in: `src/app/models.py`
+- View and filter projects by status
+- View and add measures tied to each project
+- Responsive layout with a clean UI
+- Input custom measure types
 
-A conda environment file has been started at `environment.yml` that can be expanded upon to include any required packages. 
+---
 
-## Objectives
-Your goal is to fork this repository and create a simple web application that allows users to:
+## Local Development
 
-1. View data from the database in a user-friendly format.
-2. Add records in the database through the interface.
+### 1. Clone the Repo
 
-You may choose any Python web framework you're comfortable with, such as Flask, Django, or another of your preference.
+git clone https://github.com/vcaristo/energy_modeling_software_interview.git  
+cd VEIC_interview
 
-## Requirements
-1. Web Interface:
-    - Display the data stored in the SQLite database.
-    - Implement forms or other UI elements to allow users to add new records.
-2. Database Interaction:
-    - Use SQLAlchemy (using the provided models) to interact with the database.
-3. Time Allocation:
-    - Please allocate 4-6 hours for the completion of this task.
+### 2. Setup Python environment
+With conda:
 
-## Submission Guidelines
-Once you have completed the task:
-1. Share the forked repository on GitHub.
-2. Be prepared to demonstrate the application and discuss your approach during the next interview.
+conda env create -f environment.yml  
+conda activate veic-interview
 
-## Deadline
-Ensure that you submit your forked repository by the deadline provided by VEIC's HR Business Partner.
+### 3. Run the app
 
+python app.py
+
+Then visit http://localhost:5000/veic-interview/
+
+## Deploying on EC2 with Gunicorn and Nginx
+
+### 1. SSH into EC2 instance and clone this repository:
+
+ssh ec2-user@your-ec2-ip  
+git clone https://github.com/vcaristo/energy_modeling_software_interview.git  
+cd VEIC_interview  
+
+### 2. Setup Python environment
+With conda:
+
+conda env create -f environment.yml  
+conda activate veic-interview
+
+### 3. Start Gunicorn
+
+nohup gunicorn -w 4 -b 127.0.0.1:8001 app:app > gunicorn.log 2>&1 &
+
+This command does the following:
+- Runs Gunicorn with 4 workers on port 8002.  
+- Keeps running after logout.
+- Writes stdout and stderr to gunicorn.log.
+
+### 4. Configure Nginx to handle reverse proxy requests
+
+Create a file at /etc/nginx/conf.d/veic.conf:
+
+    server {
+        listen 80;
+        server_name vincecaristo.com;
+
+        location /veic-interview/ {
+            proxy_pass http://127.0.0.1:8001;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+To add basic security hardening features, add any of the following inside the server block in veic.conf:
+
+    # Security headers
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Frame-Options DENY;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header Referrer-Policy no-referrer-when-downgrade;
+    add_header Permissions-Policy "geolocation=(), microphone=()";
+
+    # Limit abusive requests
+    limit_req zone=req_limit_per_ip burst=20 nodelay;
+
+    # Block unwanted bots
+    if ($http_user_agent ~* (bot|crawl|spider|wget|curl)) {
+        return 403;
+    }
+
+    # Deny access to dotfiles
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+Note, if rate limiting requests from individual IP addresses ("limit abusive requests"), you may 
+need to add the following line to the the http block of your nginx.conf files (typically, at folder /etc/nginx/):
+
+    limit_req_zone $binary_remote_addr zone=req_limit_per_ip:10m rate=10r/s;
+
+### 5. Reload Nginx
+
+sudo nginx -t  
+sudo systemctl reload nginx  
+
+Then visit http://<your-domain>/veic-interview/

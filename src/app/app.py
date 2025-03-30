@@ -4,7 +4,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/veic-interview/')
 def index():
     # Retrieve all projects and render the homepage
     projects = session.query(Project).all()
@@ -12,7 +12,7 @@ def index():
     return render_template('index.html', projects=projects)
 
 
-@app.route('/measures/<int:project_id>')
+@app.route('/veic-interview/measures/<int:project_id>')
 def get_measures(project_id):
     # Get all measures associated with a project
     measures = session.query(Measure).filter_by(project_id=project_id).all()
@@ -25,7 +25,7 @@ def get_measures(project_id):
         } for m in measures
     ])
 
-@app.route('/add_project', methods=['POST'])
+@app.route('/veic-interview/add_project', methods=['POST'])
 def add_project():
     # Add a new project to the database
     data = request.get_json()
@@ -45,7 +45,7 @@ def add_project():
         print("Error while adding project:", e)
         return jsonify({'error': 'Failed to add project'}), 500
 
-@app.route('/add_measure', methods=['POST'])
+@app.route('/veic-interview/add_measure', methods=['POST'])
 def add_measure():
     # Add a new measure to a project
     data = request.get_json()
@@ -71,11 +71,12 @@ def add_measure():
         print("Error adding measure:", e)
         return jsonify({'error': 'Failed to add measure'}), 500
 
-@app.route('/measure_types')
+@app.route('/veic-interview/measure_types')
 def measure_types():
     # Returns all measure types to auto-populate drop-down list
     types = session.query(Measure.measure_type).distinct().all()
     return jsonify([t[0] for t in types if t[0]])  # clean list
 
 if __name__ == '__main__':
+    #app.run(debug=True)
     app.run(debug=True)
