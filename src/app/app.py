@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    # get all Project objects from db
+    # Retrieve all projects and render the homepage
     projects = session.query(Project).all()
     
     return render_template('index.html', projects=projects)
@@ -14,6 +14,7 @@ def index():
 
 @app.route('/measures/<int:project_id>')
 def get_measures(project_id):
+    # Get all measures associated with a project
     measures = session.query(Measure).filter_by(project_id=project_id).all()
 
     return jsonify([
@@ -26,6 +27,7 @@ def get_measures(project_id):
 
 @app.route('/add_project', methods=['POST'])
 def add_project():
+    # Add a new project to the database
     data = request.get_json()
     print("Received data:", data)  
 
@@ -45,6 +47,7 @@ def add_project():
 
 @app.route('/add_measure', methods=['POST'])
 def add_measure():
+    # Add a new measure to a project
     data = request.get_json()
     project_id = data.get('project_id')
     measure_type = data.get('measure_type')
@@ -61,6 +64,7 @@ def add_measure():
         )
         session.add(new_measure)
         session.commit()
+
         return jsonify({'message': 'Measure added successfully'}), 201
     except Exception as e:
         session.rollback()
