@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import os
 
 Base = declarative_base()
 
@@ -27,8 +28,12 @@ class Measure(Base):
         return f"<Measure(id={self.id}, type={self.measure_type})>"
 
 
-# Set up SQLite DB session
-engine = create_engine('sqlite:///../../db/application_example.db')  # hard-coded relative path
+# Set up SQLite DB session - OS independent
+
+# db is two levels up from models.py
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+db_path = os.path.join(BASE_DIR, 'db', 'application_example.db')
+engine = create_engine(f'sqlite:///{db_path}')
 
 # single db session for the web app -- may want to move for concurrency features
 Session = sessionmaker(bind=engine)  
