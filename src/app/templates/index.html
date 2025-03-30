@@ -4,7 +4,8 @@
     <title>Projects</title>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
     <style>
         #project-table tbody tr.selected {
             background-color: #d0ebff;
@@ -27,8 +28,28 @@
         </tbody>
     </table>
 
+<!-- Project Summary Card -->
+<div id="project-summary" class="card mb-4 d-none">
+    <div class="card-body d-flex align-items-center">
+      <!-- Placeholder image circle -->
+      <div class="rounded-circle bg-light border d-flex justify-content-center align-items-center me-3" style="width: 80px; height: 80px;">
+        <i class="bi bi-kanban" style="font-size: 2rem; color: #6c757d;"></i>
+      </div>
+      
+      <!-- Project info -->
+      <div>
+        <h5 id="summary-title" class="card-title mb-1">Project Title</h5>
+        <p class="card-text mb-1">
+          <span class="text-muted">ID:</span> <span id="summary-id">1</span>
+        </p>
+        <span id="summary-status" class="badge">Status</span>
+      </div>
+    </div>
+  </div>
+
+
     <div id="measures" class="mt-4">
-        <h3 id="measures-title">Measures</h3>
+        <!--<h3 id="measures-title">Measures</h3>-->
         <button id="add-measure-btn" class="btn btn-success mb-3 d-none" data-bs-toggle="offcanvas" data-bs-target="#addMeasureCanvas">
             Add Measure
           </button>
@@ -54,16 +75,26 @@
 
                 if (isSelected) {
                     // Deselect and show placeholder
-                    $('#measures-title').text('Measures');
+                   // $('#measures-title').text('Measures');
                     $('#measures-table').addClass('d-none');
                     $('#measures-placeholder').removeClass('d-none');
                     $('#add-measure-btn').addClass('d-none');
                     $('#measure-project-id').val('');
+
+                    $('#project-summary').addClass('d-none'); // project card
+ 
                 } else {
                     $(this).addClass('selected');
                     const data = table.row(this).data();
                     const projectId = data[0];
                     const projectTitle = data[1];
+
+                    // Show and update project summary card
+                    $('#project-summary').removeClass('d-none');
+                    $('#summary-id').text(projectId);
+                    $('#summary-title').text(projectTitle);
+                    
+                    $('#summary-status').text(`Status: ${data[2]}`);
 
                     $('#measures-title').text(`Measures for Project: ${projectTitle}`);
                     $('#measures-placeholder').addClass('d-none');
