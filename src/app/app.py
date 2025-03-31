@@ -53,6 +53,7 @@ def add_measure():
     measure_type = data.get('measure_type')
     install_date_str = data.get('install_date')
 
+    #print("Received data:", data)
     try:
         # Convert string to Python date object
         install_date = datetime.strptime(install_date_str, '%Y-%m-%d').date()

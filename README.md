@@ -104,4 +104,4 @@ need to add the following line to the the http block of your nginx.conf files (t
 sudo nginx -t  
 sudo systemctl reload nginx  
 
-Then visit http://<your-domain>/veic-interview/
+Then visit http://\<your-domain\>/veic-interview/

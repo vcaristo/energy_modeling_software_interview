@@ -10,16 +10,15 @@
     <!-- Styling for VEIC logo (pseudo-cropping)-->
     <style>
         #logo-crop-container {
-        width: 200px;         /* Set desired width */
-        overflow: hidden;     /* Hide overflow from the image */
+        width: 200px;         
+        overflow: hidden;     /* hides overflow from the image */
         margin-bottom: -30px;
         margin-left:-10px;
         }
     
         #veic-logo {
-        width: 100%;          /* Stretch width to container */
-        margin-top: -50px;    /* Move image up to hide whitespace */
-        /*margin-left: -5px;*/
+        width: 100%;          
+        margin-top: -50px;    /* moves image up to hide whitespace */
         display: block;
         }
     </style>
@@ -61,7 +60,7 @@
             background-color: #FF9C00;
             border: 1px solid #FF9C00;
             color: #000;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.0s ease-in-out;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
@@ -78,7 +77,7 @@
         
         .placeholder-message {
             font-size: 1.25rem;
-            color: #adb5bd; /* Bootstrap's light gray */
+            color: #adb5bd; /* light gray */
             font-weight: 400;
             text-align: center;
             padding: 2rem 1rem;
@@ -120,7 +119,6 @@
 
     <!-- Header and Add Project button -->
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <!--<h2 class="mb-0">Projects</h2>-->
         <div>
             <h2 class="mb-3">Projects</h2>
             <div class="btn-group mb-3" role="group" aria-label="Status filter">
@@ -150,20 +148,19 @@
             <div class="card-body d-flex align-items-center">
                 <!-- Colored Status Circle -->
                 <div id="status-circle" class="me-3 d-flex justify-content-center align-items-center text-center">
-                <span id="status-circle-text" class="fw-semibold small text-wrap"></span>
+                    <span id="status-circle-text" class="fw-semibold small text-wrap"></span>
                 </div>
         
-                <!-- Project Info -->
                 <div>
-                <h5 id="summary-title" class="card-title mb-1">Project Title</h5>
-                <p class="card-text mb-1">
-                    <span class="text-muted">ID:</span> <span id="summary-id">1</span>
-                </p>
+                    <h5 id="summary-title" class="card-title mb-1">Project Title</h5>
+                    <p class="card-text mb-1">
+                        <span class="text-muted">ID:</span> <span id="summary-id">1</span>
+                    </p>
                 </div>
             </div>
         </div>
     
-        <!-- Add Measure Button -->
+        <!-- 'Add Measure' Button -->
         <button id="add-measure-btn"
                 class="btn btn-veic-accent d-none ms-3"
                 data-bs-toggle="offcanvas"
@@ -220,12 +217,13 @@
                 $('#add-measure-btn').addClass('d-none');
                 $('#measure-project-id').val('');
             } else {
+                // Project is selected (one at a time only)
                 $(this).addClass('selected');
                 const data = table.row(this).data();
                 const projectId = data[0];
                 const projectTitle = data[1];
         
-                // Show Project Summary Card and load measures
+                // Show Project Summary Card 
                 $('#project-summary').removeClass('d-none');
                 $('#summary-id').text(projectId);
                 $('#summary-title').text(projectTitle);
@@ -235,7 +233,7 @@
                     'Not Started': '#000000',
                     'In Progress': '#FFD700',
                     'Complete': '#28a745',
-                    };
+                };
 
                 const circleColor = statusColorMap[statusText] || '#0d6efd'; // default = blue
                 $('#status-circle').css('background-color', circleColor);
@@ -247,7 +245,8 @@
                 $('#measure-project-id').val(projectId);
                 $('#add-measure-project-title').text(projectTitle);
         
-                fetch(`/measures/${projectId}`)
+                // Load measures for the project
+                fetch(`/veic-interview/measures/${projectId}`)
                     .then(response => response.json())
                     .then(measures => {
                     const tbody = $('#measures-body');
@@ -256,9 +255,9 @@
                         tbody.append('<tr><td colspan="3">No measures found.</td></tr>');
                     } else {
                         for (let m of measures) {
-                        tbody.append(
-                            `<tr><td>${m.id}</td><td>${m.measure_type}</td><td>${m.install_date}</td></tr>`
-                        );
+                            tbody.append(
+                                `<tr><td>${m.id}</td><td>${m.measure_type}</td><td>${m.install_date}</td></tr>`
+                            );
                         }
                     }
                     });
@@ -277,7 +276,7 @@
                 const title = $('#project-title').val();
                 const status = $('#project-status').val();
             
-                fetch('/add_project', {
+                fetch('/veic-interview/add_project', {
                     method: 'POST',
                     headers: {
                     'Content-Type': 'application/json'
@@ -286,12 +285,12 @@
                 })
                 .then(res => {
                     if (res.ok) {
-                    // Close panel, refresh page or re-fetch data
+                    // Close panel, refresh page 
                     const canvas = bootstrap.Offcanvas.getInstance(document.getElementById('addProjectCanvas'));
                     canvas.hide();
-                    location.reload(); // or use DataTables API to add row dynamically
+                    location.reload(); 
                     } else {
-                    alert('Failed to add project');
+                        alert('Failed to add project');
                     }
                 });
             });
@@ -306,9 +305,9 @@
             measureCanvasEl.addEventListener('show.bs.offcanvas', () => {
                 // reset to placeholder
                 $('#measure-type-select').val('');
-                $('#custom-measure-type-group').addClass('d-none'); // also hide custom field just in case
+                $('#custom-measure-type-group').addClass('d-none'); // hide custom field just in case
 
-                fetch('/measure_types')
+                fetch('/veic-interview/measure_types')
                     .then(res => res.json())
                     .then(types => {
                         const select = $('#measure-type-select');
@@ -320,20 +319,15 @@
                         const otherOption = select.find('option[value="__custom__"]');
 
                         types.forEach(t => {
-                        $('<option>', {
-                            value: t,
-                            text: t
-                        }).insertBefore(otherOption);
+                            $('<option>', {
+                                value: t,
+                                text: t
+                            }).insertBefore(otherOption);
                         });
                     });
             });
 
-            // Hide the placeholder once user interacts with menu
-            $('#measure-type-select').one('focus', function () {
-                $('#measure-placeholder').remove();
-            });
-
-            // Show custom input when "Other" is selected
+            // Show custom input box when "Other" is selected
             $('#measure-type-select').on('change', function () {
                 const isCustom = $(this).val() === '__custom__';
                 $('#custom-measure-type-group').toggleClass('d-none', !isCustom);
@@ -342,7 +336,7 @@
 
             // Function to refresh measures after adding a new measure
             function refreshMeasuresForProject(projectId) {
-                fetch(`/measures/${projectId}`)
+                fetch(`/veic-interview/measures/${projectId}`)
                     .then(response => response.json())
                     .then(measures => {
                     const tbody = $('#measures-body');
@@ -373,7 +367,7 @@
                 }
                 const installDate = $('#install-date').val();
         
-                fetch('/add_measure', {
+                fetch('/veic-interview/add_measure', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -388,7 +382,7 @@
                     if (res.ok) {
                         const canvas = bootstrap.Offcanvas.getInstance(document.getElementById('addMeasureCanvas'));
                         canvas.hide();
-                        //location.reload(); // re-fetch measures
+
                         // Re-fetch and repopulate measures
                         refreshMeasuresForProject(projectId);
                     } else {

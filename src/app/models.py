@@ -29,9 +29,7 @@ class Measure(Base):
 
 
 # Set up SQLite DB session - OS independent
-
-# db is two levels up from models.py
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))  # db is two levels up from models.py
 db_path = os.path.join(BASE_DIR, 'db', 'application_example.db')
 engine = create_engine(f'sqlite:///{db_path}')
 
